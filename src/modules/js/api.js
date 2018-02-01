@@ -1,6 +1,7 @@
 let url = {
   hotLists: '/index/lists',
-  banner: '/index/banner'
+  banner: '/index/banner',
+  topList: '/category/topList'
 }
 
 let host = 'http://rapapi.org/mockjsdata/31521'
