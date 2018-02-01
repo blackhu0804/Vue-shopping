@@ -1,8 +1,9 @@
 let url = {
-  hotLists: '/index/lists'
+  hotLists: '/index/lists',
+  banner: '/index/banner'
 }
 
-let host = 'http://rap2api.taobao.org/app/mock/4354/GET'
+let host = 'http://rapapi.org/mockjsdata/31521'
 
 for (const key in url) {
   if (url.hasOwnProperty(key)) {
