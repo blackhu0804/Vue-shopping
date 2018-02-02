@@ -11,24 +11,59 @@ new Vue({
   el: '#app',
   data: {
     topList: null,
-    topIndex: 0
+    topIndex: 0,
+    subData: null,
+    rankData: null
   },
   created() {
-    this.getTopList()
+    this.getTopList();
+    this.getSubList(0);
   },
   methods: {
     getTopList() {
       axios.post(url.topList).then(res => {
-        this.topList = res.data.lists
+        this.topList = res.data.lists;
       }).catch(res => {
         // 异常处理
       })
     },
-    getSubList(id, index) {
+    getSubList(index, id) {
       this.topIndex = index;
+      if(index === 0) {
+        this.getRank();
+      } else {
+        axios.post(url.subList, {id}).then(res => {
+          this.subData = res.data.data;
+        })
+      }
+    },
+    getRank() {
+      axios.post(url.rankList).then(res => {
+        this.rankData = res.data.data;
+      })
     }
   },
   components: {
     Foot
+  },
+  filters: {
+    number(price) {
+      // 将价格保留两位小数
+      var f = parseFloat(price);
+      if (isNaN(f)) {
+          return false;
+      }
+      var f = Math.round(price*100)/100;
+      var s = f.toString();
+      var rs = s.indexOf('.');
+      if (rs < 0) {
+          rs = s.length;
+          s += '.';
+      }
+      while (s.length <= rs + 2) {
+          s += '0';
+      }
+      return s;
+    }
   }
 })
