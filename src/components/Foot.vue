@@ -34,7 +34,7 @@
     name: '我',
     icon: 'icon-user',
     href: 'member.html'
-  },]
+  }]
 
   export default {
     data() {
@@ -46,6 +46,8 @@
     methods: {
       changeNav(list, index) {
         location.href = `${list.href}?index=${index}`
+        console.log(`list.href: ${list.href}`)
+        console.log(`index: ${index}`)
       }
     }
   }
