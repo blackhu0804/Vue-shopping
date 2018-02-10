@@ -7,6 +7,8 @@ import url from 'js/api.js'
 
 import Foot from 'components/Foot.vue'
 
+import mixin from 'js/mixin.js'
+
 new Vue({
   el: '#app',
   data: {
@@ -49,24 +51,5 @@ new Vue({
   components: {
     Foot
   },
-  filters: {
-    number(price) {
-      // 将价格保留两位小数
-      var f = parseFloat(price);
-      if (isNaN(f)) {
-          return false;
-      }
-      var f = Math.round(price*100)/100;
-      var s = f.toString();
-      var rs = s.indexOf('.');
-      if (rs < 0) {
-          rs = s.length;
-          s += '.';
-      }
-      while (s.length <= rs + 2) {
-          s += '0';
-      }
-      return s;
-    }
-  }
+  mixins: [mixin]
 })
