@@ -10,6 +10,7 @@ import url from 'js/api.js'
 import axios from 'axios'
 import mixin from 'js/mixin.js'
 import qs from 'qs'
+import Swipe from 'components/Swipe.vue'
 
 
 let {id} = qs.parse(location.search.substr(1))
@@ -21,7 +22,8 @@ new Vue({
     details: null,
     detailTab,
     tabIndex : 0,
-    dealLists: null
+    dealLists: null,
+    bannerLists: null
   },
   created() {
     this.getDetails()
@@ -30,6 +32,13 @@ new Vue({
     getDetails() {
       axios.post(url.details, {id}).then(res => {
         this.details = res.data.data
+        this.bannerLists = []
+        this.details.imgs.forEach(item => {
+          this.bannerLists.push({
+            clickUrl: '',
+            image: item
+          })
+        })
       })
     },
     changeTab(index) {
@@ -43,6 +52,9 @@ new Vue({
         this.dealLists = res.data.data.lists
       })
     }
+  },
+  components: {
+    Swipe
   },
   mixins: [mixin]
 })
