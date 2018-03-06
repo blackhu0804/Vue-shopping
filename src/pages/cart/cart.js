@@ -25,7 +25,9 @@ new Vue({
     lists: null,
     total: 0,
     editingShop: null,
-    editingShopIndex: -1
+    editingShopIndex: -1,
+    removePopup: false,
+    removeData: null
   },
   computed: {
     allSelected: {
@@ -46,6 +48,22 @@ new Vue({
         })
       }
     },
+    allRemoveSelected: {
+      get() {
+        if (this.editingShop) {
+          return this.editingShop.removeChecked
+        }
+        return false
+      },
+      set(newVal) {
+        if(this.editingShop) {
+          this.editingShop.removeChecked = newVal
+          this.editingShop.goodsList.forEach(good => {
+            good.removeChecked = newVal
+          })
+        }
+      }
+    },
     selectList() {
       if (this.lists&&this.lists.length) {
         let arr = []
@@ -64,7 +82,16 @@ new Vue({
       return []
     },
     removeList() {
-
+      if(this.editingShop) {
+        let arr = []
+        this.editingShop.goodsList.forEach( good => {
+          if(good.removeChecked) {
+            arr.push(good)
+          }
+        })
+        return arr
+      }
+      return []
     }
   },
   created() {
@@ -88,19 +115,22 @@ new Vue({
       })
     },
     selectGood(shop, good) {
-      good.checked = !good.checked
-      shop.checked = shop.goodsList.every(good => {
-        return good.checked
+      let attr = this.editingShop ? 'removeChecked' : 'checked'
+      good[attr] = !good[attr]
+      shop[attr] = shop.goodsList.every(good => {
+        return good[attr]
       })
     },
     selectShop(shop) {
-      shop.checked = !shop.checked
+      let attr = this.editingShop ? 'removeChecked' : 'checked'
+      shop[attr] = !shop[attr]
       shop.goodsList.forEach( good => {
-        good.checked = shop.checked
+        good[attr] = shop[attr]
       })
     },
     selectAll() {
-      this.allSelected = !this.allSelected
+      let attr = this.editingShop ? 'allRemoveSelected' : 'allSelected'
+      this[attr] = !this[attr]
     },
     edit(shop, shopIndex) {
       shop.editing = !shop.editing
@@ -113,6 +143,51 @@ new Vue({
       })
       this.editingShop = shop.editing ? shop : null
       this.editingShopIndex = shop.editing ? shopIndex : -1
+    },
+    reduce(good) {
+      if(good.number === 1) {
+        return
+      }
+      axios.post(url.cartReduce, {
+        id: good.id,
+        number: 1
+      }).then(res => {
+        good.number -= 1
+      })
+    },
+    add(good) {
+      axios.post(url.cartAdd, {
+        id: good.id,
+        number: 1
+      }).then(res => {
+        good.number += 1
+      })
+    },
+    remove(shop, shopIndex, good, goodIndex) {
+      this.removePopup = true
+      this.removeData = { shop, shopIndex, good, goodIndex}
+    },
+    removeConfirm() {
+      let { shop, shopIndex, good, goodIndex} = this.removeData
+      axios.post(url.cartRemove,{
+        id: good.id
+      }).then( res => {
+        console.log(shop.goodsList)
+        shop.goodsList.splice(goodIndex, 1)
+        if(!shop.goodsList.length){
+          this.lists.splice(shopIndex, 1)
+          this.removeShop()
+        }
+        this.removePopup = false
+      })
+    },
+    removeShop() {
+      this.editingShop = null
+      this.editingShopIndex = -1
+      this.lists.forEach(shop => {
+        shop.editing = false
+        shop.editingMsg = '编辑'
+      })
     }
   },
   mixins: [mixin]
